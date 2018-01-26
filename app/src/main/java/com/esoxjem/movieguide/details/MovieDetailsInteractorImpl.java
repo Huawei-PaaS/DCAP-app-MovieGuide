@@ -1,9 +1,13 @@
 package com.esoxjem.movieguide.details;
 
+import android.os.AsyncTask;
+
 import com.esoxjem.movieguide.Review;
 import com.esoxjem.movieguide.ReviewsWrapper;
+import com.esoxjem.movieguide.SapphireAccess;
 import com.esoxjem.movieguide.Video;
 import com.esoxjem.movieguide.VideoWrapper;
+import com.esoxjem.movieguide.network.NetworkModule;
 import com.esoxjem.movieguide.network.TmdbWebService;
 
 import java.util.List;
@@ -17,6 +21,10 @@ class MovieDetailsInteractorImpl implements MovieDetailsInteractor {
 
     private TmdbWebService tmdbWebService;
 
+    @Override
+    public TmdbWebService getTmdbWebService() {
+        return tmdbWebService;
+    }
     MovieDetailsInteractorImpl(TmdbWebService tmdbWebService) {
         this.tmdbWebService = tmdbWebService;
     }
@@ -30,5 +38,6 @@ class MovieDetailsInteractorImpl implements MovieDetailsInteractor {
     public Observable<List<Review>> getReviews(final String id) {
         return tmdbWebService.reviews(id).map(ReviewsWrapper::getReviews);
     }
+
 
 }

@@ -1,9 +1,12 @@
 package com.esoxjem.movieguide;
 
+import sapphire.app.SapphireObject;
+import sapphire.policy.ShiftPolicy;
+
 /**
  * @author arun
  */
-public class Api {
+public class Api implements SapphireObject<ShiftPolicy> {
     public static final String BASE_POSTER_PATH = "http://image.tmdb.org/t/p/w342";
     public static final String BASR_BACKDROP_PATH = "http://image.tmdb.org/t/p/w780";
     static final String YOUTUBE_VIDEO_URL = "http://www.youtube.com/watch?v=%1$s";

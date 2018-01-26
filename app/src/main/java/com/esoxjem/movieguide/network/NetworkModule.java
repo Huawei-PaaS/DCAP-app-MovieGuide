@@ -15,6 +15,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import sapphire.app.SapphireObject;
+import sapphire.policy.ShiftPolicy;
 
 /**
  * @author arunsasidharan
