@@ -1,27 +1,25 @@
 package com.esoxjem.movieguide;
 
-import com.esoxjem.movieguide.favorites.DoPrint;
-import com.esoxjem.movieguide.network.NetworkModule;
-import com.esoxjem.movieguide.details.ShowReviews;
-import com.esoxjem.movieguide.network.TmdbWebService;
+import com.esoxjem.movieguide.details.GetReviewList;
+import com.google.gson.Gson;
 
 import java.net.InetSocketAddress;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
 
 import sapphire.kernel.server.KernelServer;
 import sapphire.kernel.server.KernelServerImpl;
 import sapphire.oms.OMSServer;
-import static sapphire.runtime.Sapphire.*;
 
 public class SapphireAccess
 {
     public static OMSServer server;
-    public static DoPrint doPrint;
-    public static NetworkModule nm;
-    public static ShowReviews sr;
+    public static GetReviewList lr;
 
-    public static ShowReviews setShowReviews(TmdbWebService tmdbWebService) {
+    public static List<Review> getShowReviews(String id) {
+        List<Review> reviews = null;
+
         try {
             if (server == null) {
                 Registry registry = LocateRegistry.getRegistry(Constants.omsAddress[0], Integer.parseInt(Constants.omsAddress[1]));
@@ -30,61 +28,31 @@ public class SapphireAccess
                 KernelServer nodeServer = new KernelServerImpl(new InetSocketAddress(
                         Constants.hostAddress[0], Integer.parseInt(Constants.hostAddress[1])),
                         new InetSocketAddress(Constants.omsAddress[0], Integer.parseInt(Constants.omsAddress[1])));
-
-                sr = (ShowReviews) server.getAppEntryPoint();
-                sr.setTmdbWebService(tmdbWebService);
-                TmdbWebService verification = sr.getTmdbWebService();
-                System.out.println("Verified");
             }
-//            newSr = (ShowReviews)new_(ShowReviews.class, tmdbWebService);
+
+            if (lr == null) {
+                lr = (GetReviewList) server.getAppEntryPoint();
+            }
+
+            String responseStr = lr.GetReviews(id);
+            reviews = getReviewListFromGson(responseStr);
         }
         catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        return sr;
+        return reviews;
     }
 
-    public static NetworkModule getNetworkModule() {
-        if (server == null) {
-            try {
-                Registry registry = LocateRegistry.getRegistry(Constants.omsAddress[0], Integer.parseInt(Constants.omsAddress[1]));
-                server = (OMSServer) registry.lookup("SapphireOMS");
-
-                KernelServer nodeServer = new KernelServerImpl(new InetSocketAddress(
-                        Constants.hostAddress[0], Integer.parseInt(Constants.hostAddress[1])),
-                        new InetSocketAddress(Constants.omsAddress[0], Integer.parseInt(Constants.omsAddress[1])));
-
-                nm = (NetworkModule) server.getAppEntryPoint();
-            }
-            catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+    private static List<Review> getReviewListFromGson(String input) {
+        List<Review> reviews = null;
+        try {
+            ReviewsWrapper reviewsWrapper = new Gson().fromJson(input, ReviewsWrapper.class);
+            reviews = reviewsWrapper.getReviews();
+        }catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return nm;
-    }
-
-    public static DoPrint GetDoPrint() {
-
-        if (server == null) {
-            try {
-                Registry registry = LocateRegistry.getRegistry(Constants.omsAddress[0], Integer.parseInt(Constants.omsAddress[1]));
-                server = (OMSServer) registry.lookup("SapphireOMS");
-
-                KernelServer nodeServer = new KernelServerImpl(new InetSocketAddress(
-                        Constants.hostAddress[0], Integer.parseInt(Constants.hostAddress[1])),
-                        new InetSocketAddress(Constants.omsAddress[0], Integer.parseInt(Constants.omsAddress[1])));
-
-                doPrint = (DoPrint) server.getAppEntryPoint();
-            }
-            catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        return doPrint;
+        return reviews;
     }
 }

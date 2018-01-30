@@ -10,7 +10,6 @@ import com.esoxjem.movieguide.favorites.FavoritesInteractor;
 import com.esoxjem.movieguide.util.RxUtils;
 
 import java.util.List;
-import java.util.Observable;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -71,34 +70,27 @@ class MovieDetailsPresenterImpl implements MovieDetailsPresenter {
         // Do nothing
     }
 
+
     @Override
     public void showReviews(Movie movie) {
-//        reviewSubscription = movieDetailsInteractor.getReviews(movie.getId());
-
         try {
-            new AccessRemoteObject().execute().get();
-
-            //ShowReviews sr = SapphireAccess.setShowReviews(movieDetailsInteractor.getTmdbWebService());
-//            List<Review> reviews = SapphireAccess.sr.getReviews(movie.getId(), movieDetailsInteractor.getTmdbWebService());
-            List<Review> reviews = SapphireAccess.sr.getReviews(movie.getId());
-
-//            reviewSubscription = SapphireAccess.sr.getReviews(movie.getId()).subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(this::onGetReviewsSuccess, t -> onGetReviewsFailure());
+            List<Review> reviews = new GetReviews(movie.getId()).execute().get();
 
             onGetReviewsSuccess(reviews);
-//                reviewSubscription = movieDetailsInteractor.getReviews(movie.getId()).subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(this::onGetReviewsSuccess, t -> onGetReviewsFailure());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-//
-    private class AccessRemoteObject extends AsyncTask<Void, Void, ShowReviews> {
-        protected ShowReviews doInBackground(Void... params) {
-            ShowReviews sr = SapphireAccess.setShowReviews(movieDetailsInteractor.getTmdbWebService());
-            return sr;
+
+    private class GetReviews extends AsyncTask<Void, Void, List<Review>> {
+        private String id = null;
+
+        private GetReviews(String id) {
+            this.id = id;
+        }
+        protected List<Review> doInBackground(Void... params) {
+            List<Review> reviews = SapphireAccess.getShowReviews(this.id);
+            return reviews;
         }
     }
 
